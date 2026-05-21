@@ -410,9 +410,38 @@ window.Trades = (() => {
 
   // ── INIT ─────────────────────────────────────────────────────
 
+  // ── STICKER PREVIEW ────────────────────────────────────────
+
+  function _openStickerPreview(stickerId) {
+    const s = window.getStickerById(stickerId);
+    if (!s) return;
+    document.getElementById('sticker-preview-img').src  = s.image;
+    document.getElementById('sticker-preview-img').alt  = s.id;
+    document.getElementById('sticker-preview-id').textContent   = s.id;
+    document.getElementById('sticker-preview-name').textContent = s.name || '';
+    document.getElementById('sticker-preview-backdrop').classList.remove('hidden');
+  }
+
+  function _closeStickerPreview() {
+    document.getElementById('sticker-preview-backdrop').classList.add('hidden');
+  }
+
+  // ── INIT ─────────────────────────────────────────────────────
+
   function init() {
     document.getElementById('trades-open-btn').addEventListener('click', open);
     document.getElementById('trades-close').addEventListener('click', close);
+
+    // Sticker preview
+    document.getElementById('sticker-preview-close').addEventListener('click', _closeStickerPreview);
+    document.getElementById('sticker-preview-backdrop').addEventListener('click', e => {
+      if (e.target.id === 'sticker-preview-backdrop') _closeStickerPreview();
+    });
+    // Click on any trade-thumb img
+    document.getElementById('trades-overlay').addEventListener('click', e => {
+      const img = e.target.closest('.trade-thumb img');
+      if (img) _openStickerPreview(img.alt);
+    });
 
     // Close on backdrop click
     document.getElementById('trades-overlay').addEventListener('click', e => {
