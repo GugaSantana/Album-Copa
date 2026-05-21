@@ -1073,6 +1073,84 @@ input, textarea { font-family: inherit; }
   flex-shrink: 0;
 }
 
+/* ── COCA-COLA BOTTLE SECTION ───────────────────────────────── */
+.coca-idle-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  width: 100%;
+}
+
+.coca-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.coca-divider::before,
+.coca-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-2);
+}
+
+.coca-bottle-wrapper {
+  position: relative;
+  cursor: pointer;
+  width: 300px;
+  transition: transform 0.2s;
+}
+.coca-bottle-wrapper:hover {
+  transform: scale(1.08);
+}
+.coca-bottle-img {
+  width: 100%;
+  filter: drop-shadow(0 8px 24px rgba(220,0,0,0.45));
+}
+.coca-bottle-wrapper.pack-shaking {
+  animation: pack-shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+.coca-instruction {
+  font-size: 13px;
+  color: var(--text-2);
+  text-align: center;
+}
+
+/* Coca shop card */
+.coca-shop-card {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(220,0,0,0.12), rgba(180,0,0,0.06));
+  border: 1px solid rgba(220,0,0,0.25);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.coca-shop-visual {
+  width: 60px;
+  flex-shrink: 0;
+}
+.coca-shop-visual img {
+  width: 100%;
+  filter: drop-shadow(0 4px 12px rgba(220,0,0,0.4));
+}
+.coca-shop-price {
+  font-size: 18px;
+  font-weight: 900;
+  color: #ff4444;
+  margin-top: 4px;
+}
+
 /* Back-to-top floating button */
 .album-back-top {
   position: absolute;

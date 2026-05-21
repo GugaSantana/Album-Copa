@@ -250,11 +250,37 @@
           🛒 Comprar <span id="buy-qty">1</span> Pacote(s) — R$ <span id="buy-total">7,00</span>
         </button>
         <p class="buy-note" id="buy-note"></p>
+        <button class="btn btn-secondary btn-full" onclick="navigate('pack')" id="go-open-btn" style="display:none; margin-top:10px;">
+          🎁 Abrir pacotes agora! →
+        </button>
       </div>
 
-      <button class="btn btn-secondary btn-full" onclick="navigate('pack')" id="go-open-btn" style="display:none; margin-top:8px;">
-        Abrir pacotes agora! →
-      </button>
+      <div class="shop-section">
+        <h3 class="section-title">🥤 Garrafinha Coca-Cola</h3>
+        <p class="section-sub">1 figurinha exclusiva por garrafa — só saem aqui! 🔴</p>
+        <div class="coca-shop-card">
+          <div class="coca-shop-visual">
+            <img src="assets/pack/cocacola.png" alt="Coca-Cola">
+          </div>
+          <div class="pack-shop-info">
+            <h4>Garrafinha Coca-Cola Zero 600ml</h4>
+            <p>1 figurinha exclusiva por garrafa</p>
+            <div class="coca-shop-price">R$ 6,00 / garrafa</div>
+          </div>
+        </div>
+        <div class="quantity-row">
+          <button class="qty-btn" id="coca-qty-minus">−</button>
+          <div class="qty-display">
+            <span id="coca-qty-value">1</span>
+            <small>garrafa(s)</small>
+          </div>
+          <button class="qty-btn" id="coca-qty-plus">+</button>
+        </div>
+        <button class="btn btn-primary btn-full" id="buy-coca-btn" style="background:#cc0000;border-color:#cc0000">
+          🛒 Comprar <span id="coca-buy-qty">1</span> Garrafa(s) — R$ <span id="coca-buy-total">6,00</span>
+        </button>
+        <p class="buy-note" id="coca-buy-note"></p>
+      </div>
     </div>
   </section>
 
@@ -288,6 +314,16 @@
       <button class="btn btn-ghost" onclick="navigate('shop')" id="no-packs-btn" style="display:none">
         Comprar pacotes →
       </button>
+
+      <!-- Coca-Cola bottle section -->
+      <div id="coca-idle-section" class="coca-idle-section" style="display:none">
+        <div class="coca-divider"><span>🥤 Garrafinhas Coca-Cola</span></div>
+        <div class="pack-available-info" style="margin-top:0">Disponíveis: <strong id="coca-available">0</strong></div>
+        <div class="coca-bottle-wrapper" id="coca-bottle-wrapper">
+          <img src="assets/pack/cocacola.png" alt="Garrafa Coca-Cola" class="coca-bottle-img">
+        </div>
+        <p class="coca-instruction">Clique na garrafa para revelar sua figurinha exclusiva!</p>
+      </div>
     </div>
 
     <!-- PACK REVEAL STATE -->

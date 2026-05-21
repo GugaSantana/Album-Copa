@@ -4,10 +4,11 @@
 
 window.PackOpening = (() => {
 
-  let currentPack    = [];  // 7 stickers for this opening
+  let currentPack    = [];  // stickers for this opening
   let flippedCount   = 0;
   let priorCollection = {};
   let isOpening      = false;
+  let cocaMode       = false;  // true when opening a coca bottle
 
   // ── STICKER GENERATION ──────────────────────────────────────
 
@@ -16,7 +17,8 @@ window.PackOpening = (() => {
    * Guarantees no more than 3 duplicates of the same sticker in one pack.
    */
   function generatePackContents() {
-    const pool    = [...window.STICKERS];
+    // Exclude exclusive stickers from normal packs
+    const pool    = window.STICKERS.filter(s => !s.exclusive);
     const result  = [];
     const counts  = {};
 
@@ -35,6 +37,12 @@ window.PackOpening = (() => {
     return result;
   }
 
+  /** Picks 1 random exclusive Coca-Cola sticker */
+  function generateCocaContents() {
+    const pool = window.STICKERS.filter(s => s.exclusive === 'coca');
+    return [pool[Math.floor(Math.random() * pool.length)]];
+  }
+
   // ── RENDER IDLE STATE ───────────────────────────────────────
 
   function renderIdle() {
@@ -48,6 +56,9 @@ window.PackOpening = (() => {
     const wrapper     = document.getElementById('pack-wrapper');
     const instruction = document.getElementById('pack-instruction');
     const noPacks     = document.getElementById('no-packs-btn');
+    const cocaSection = document.getElementById('coca-idle-section');
+    const cocaAvail   = document.getElementById('coca-available');
+    const pendingCoca = (profile || {}).pendingCoca || 0;
 
     if (pending > 0) {
       wrapper.classList.remove('no-packs');
@@ -60,6 +71,10 @@ window.PackOpening = (() => {
       noPacks.style.display = '';
     }
 
+    // Show/hide coca section
+    cocaSection.style.display = pendingCoca > 0 ? '' : 'none';
+    cocaAvail.textContent = pendingCoca;
+
     showIdleState();
   }
 
@@ -67,6 +82,7 @@ window.PackOpening = (() => {
     document.getElementById('pack-idle-state').style.display   = '';
     document.getElementById('pack-reveal-state').classList.add('hidden');
     isOpening  = false;
+    cocaMode   = false;
     flippedCount = 0;
     currentPack  = [];
   }
@@ -116,6 +132,48 @@ window.PackOpening = (() => {
     // Wait for Firestore commit to finish so badge knows if sticker is new
     await commitPromise;
     updateNewBadges();
+  }
+
+  // ── OPEN COCA BOTTLE ─────────────────────────────────────────
+
+  async function startCocaOpening() {
+    const profile = window.AppState.profile;
+    if (!profile || (profile.pendingCoca || 0) < 1 || isOpening) return;
+    isOpening = true;
+    cocaMode  = true;
+
+    // 1. Pick the sticker up front
+    const [sticker]  = generateCocaContents();
+    currentPack      = [sticker];
+
+    // 2. Shake the bottle
+    const bottleWrapper = document.getElementById('coca-bottle-wrapper');
+    bottleWrapper.classList.add('pack-shaking');
+    await wait(600);
+    bottleWrapper.classList.remove('pack-shaking');
+
+    // 3. White flash
+    const flash = document.createElement('div');
+    flash.className = 'flash-overlay';
+    document.body.appendChild(flash);
+    flash.addEventListener('animationend', () => flash.remove(), { once: true });
+
+    await wait(250);
+
+    // 4. Commit to Firestore
+    try {
+      const prior    = await DB.openCocaBottle(window.AppState.uid, sticker.id);
+      priorCollection = prior;
+    } catch (err) {
+      showToast('Erro: ' + err.message);
+      isOpening = false;
+      cocaMode  = false;
+      return;
+    }
+
+    // 5. Show reveal state with 1 card
+    showRevealState();
+    renderCards();
   }
 
   // ── REVEAL STATE ─────────────────────────────────────────────
@@ -249,16 +307,23 @@ window.PackOpening = (() => {
       if (pending > 0 && !isOpening) startOpening();
     });
 
-    // "Open another" button — return to idle so user clicks the pack again
+    // "Open another" button — return to idle so user clicks the pack/bottle again
     document.getElementById('open-another-btn').addEventListener('click', () => {
       const profile = window.AppState.profile;
-      if ((profile || {}).pendingPacks > 0) {
+      const hasPacks = (profile.pendingPacks || 0) > 0;
+      const hasCoca  = (profile.pendingCoca  || 0) > 0;
+      if (hasPacks || hasCoca) {
         priorCollection = {};
         showIdleState();
         renderIdle();
       } else {
         navigate('shop');
       }
+    });
+
+    // Coca bottle click
+    document.getElementById('coca-bottle-wrapper').addEventListener('click', () => {
+      if (!isOpening) startCocaOpening();
     });
 
     // Register view hook to refresh idle state on navigate

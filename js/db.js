@@ -156,7 +156,9 @@ window.DB = (() => {
     autoPaste,
     getAllUsers,
     resetUserAccount,
-    fillUserAlbum
+    fillUserAlbum,
+    buyCocaBottle,
+    openCocaBottle
   };
 
   // ── ADMIN ────────────────────────────────────────────────────
@@ -188,5 +190,40 @@ window.DB = (() => {
       album[s.id] = true;
     });
     await window.db.collection('users').doc(uid).update({ collection, album });
+  }
+
+  // ── COCA-COLA BOTTLE ────────────────────────────────────────
+
+  /** Buy N coca-cola bottles — R$6 each, 1 exclusive sticker per bottle */
+  async function buyCocaBottle(uid, qty) {
+    const total = qty * 6;
+    const ref   = window.db.collection('users').doc(uid);
+    await window.db.runTransaction(async tx => {
+      const snap = await tx.get(ref);
+      const data = snap.data();
+      if ((data.balance || 0) < total) throw new Error('Saldo insuficiente');
+      tx.update(ref, {
+        balance:     firebase.firestore.FieldValue.increment(-total),
+        pendingCoca: firebase.firestore.FieldValue.increment(qty),
+        totalSpent:  firebase.firestore.FieldValue.increment(total)
+      });
+    });
+  }
+
+  /** Open 1 coca bottle — consumes pendingCoca, adds sticker to collection */
+  async function openCocaBottle(uid, stickerId) {
+    const ref = window.db.collection('users').doc(uid);
+    let priorCollection = {};
+    await window.db.runTransaction(async tx => {
+      const snap = await tx.get(ref);
+      const data = snap.data();
+      if ((data.pendingCoca || 0) < 1) throw new Error('Nenhuma garrafinha pendente');
+      priorCollection = { ...(data.collection || {}) };
+      tx.update(ref, {
+        [`collection.${stickerId}`]: firebase.firestore.FieldValue.increment(1),
+        pendingCoca: firebase.firestore.FieldValue.increment(-1)
+      });
+    });
+    return priorCollection;
   }
 })();

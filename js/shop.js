@@ -5,7 +5,9 @@
 window.Shop = (() => {
 
   const PACK_PRICE = 7;
+  const COCA_PRICE = 6;
   let   quantity   = 1;
+  let   cocaQty    = 1;
 
   // ── RENDER ──────────────────────────────────────────────────
 
@@ -20,6 +22,7 @@ window.Shop = (() => {
     document.getElementById('shop-pending').textContent = profile.pendingPacks || 0;
 
     updateQuantityUI();
+    updateCocaQtyUI();
     toggleGoOpenBtn();
   }
 
@@ -27,6 +30,12 @@ window.Shop = (() => {
     document.getElementById('qty-value').textContent  = quantity;
     document.getElementById('buy-qty').textContent    = quantity;
     document.getElementById('buy-total').textContent  = (quantity * PACK_PRICE).toFixed(2).replace('.', ',');
+  }
+
+  function updateCocaQtyUI() {
+    document.getElementById('coca-qty-value').textContent    = cocaQty;
+    document.getElementById('coca-buy-qty').textContent      = cocaQty;
+    document.getElementById('coca-buy-total').textContent    = (cocaQty * COCA_PRICE).toFixed(2).replace('.', ',');
   }
 
   function toggleGoOpenBtn() {
@@ -46,7 +55,32 @@ window.Shop = (() => {
       showToast('Erro ao depositar: ' + err.message);
     }
   }
+  async function handleBuyCoca() {
+    const uid     = window.AppState.uid;
+    const profile = window.AppState.profile;
+    if (!uid || !profile) return;
 
+    const total  = cocaQty * COCA_PRICE;
+    const noteEl = document.getElementById('coca-buy-note');
+
+    if (profile.balance < total) {
+      noteEl.textContent = `Saldo insuficiente! Você tem R$${(profile.balance).toFixed(2).replace('.', ',')} e precisa de R$${total.toFixed(2).replace('.', ',')}.`;
+      return;
+    }
+    noteEl.textContent = '';
+
+    const btn = document.getElementById('buy-coca-btn');
+    btn.disabled = true;
+    try {
+      await DB.buyCocaBottle(uid, cocaQty);
+      showToast(`🥤 ${cocaQty} garrafinha(s) comprada(s)!`);
+      toggleGoOpenBtn();
+    } catch (err) {
+      noteEl.textContent = err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
   // ── BUY PACKS ───────────────────────────────────────────────
 
   async function handleBuyPacks() {
@@ -101,6 +135,15 @@ window.Shop = (() => {
 
     // Buy button
     document.getElementById('buy-pack-btn').addEventListener('click', handleBuyPacks);
+
+    // Coca-Cola quantity controls
+    document.getElementById('coca-qty-minus').addEventListener('click', () => {
+      if (cocaQty > 1) { cocaQty--; updateCocaQtyUI(); }
+    });
+    document.getElementById('coca-qty-plus').addEventListener('click', () => {
+      cocaQty++; updateCocaQtyUI();
+    });
+    document.getElementById('buy-coca-btn').addEventListener('click', handleBuyCoca);
 
     // Register view hook
     registerViewHook('shop', render);
