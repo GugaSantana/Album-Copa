@@ -84,14 +84,19 @@ function subscribeToProfile(uid) {
     window.AppState.profile = profile;
     refreshHomeStats();
 
-    // Only refresh the shop stats in real-time (balance/packs counter).
-    // The pack view is intentionally excluded: calling its viewHook would
-    // reset the reveal state (cards face-down) back to idle right after
-    // the Firestore write that opens the pack fires this listener.
+    // Refresh active view stats without resetting animations.
     const activeView = document.querySelector('.app-view.active');
     if (activeView) {
       const viewId = activeView.id.replace('-view', '');
-      if (viewId === 'shop') Shop.render();
+      if (viewId === 'shop') {
+        Shop.render();
+      } else if (viewId === 'pack') {
+        // Update counters only — do NOT call renderIdle() to avoid resetting reveal state
+        const el = document.getElementById('packs-opened-count');
+        const av = document.getElementById('pack-available');
+        if (el) el.textContent = profile.packsOpened  || 0;
+        if (av) av.textContent = profile.pendingPacks || 0;
+      }
     }
   });
 }

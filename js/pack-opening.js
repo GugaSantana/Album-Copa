@@ -145,6 +145,13 @@ window.PackOpening = (() => {
     // Wait for Firestore commit to finish so badge knows if sticker is new
     await commitPromise;
     updateNewBadges();
+
+    // Optimistic local update so renderIdle() reflects new counts immediately
+    if (window.AppState.profile) {
+      window.AppState.profile.packsOpened  = (window.AppState.profile.packsOpened  || 0) + 1;
+      window.AppState.profile.pendingPacks = Math.max(0, (window.AppState.profile.pendingPacks || 0) - 1);
+    }
+    App.refreshHomeStats();
   }
 
   // ── OPEN COCA BOTTLE ─────────────────────────────────────────
@@ -183,6 +190,12 @@ window.PackOpening = (() => {
       cocaMode  = false;
       return;
     }
+
+    // Optimistic local update for coca bottle
+    if (window.AppState.profile) {
+      window.AppState.profile.pendingCoca = Math.max(0, (window.AppState.profile.pendingCoca || 0) - 1);
+    }
+    App.refreshHomeStats();
 
     // 5. Show reveal state with 1 card
     showRevealState();
