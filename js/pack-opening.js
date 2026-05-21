@@ -16,6 +16,8 @@ window.PackOpening = (() => {
    * Generates 7 random sticker IDs from the catalog.
    * Guarantees no more than 3 duplicates of the same sticker in one pack.
    */
+  const BONUS_CHANCE = 0.01; // 1% de chance de ganhar uma 8ª carta extra por pacote
+
   function generatePackContents() {
     // Exclude exclusive stickers from normal packs
     const pool    = window.STICKERS.filter(s => !s.exclusive);
@@ -34,6 +36,17 @@ window.PackOpening = (() => {
       result.push(pick);
       counts[pick.id] = (counts[pick.id] || 0) + 1;
     }
+
+    // Bonus: 30% chance de uma 8ª carta extra aleatória
+    if (Math.random() < BONUS_CHANCE) {
+      const bonusPool = window.STICKERS.filter(s => s.exclusive === 'bonus');
+      if (bonusPool.length > 0) {
+        const bonus = bonusPool[Math.floor(Math.random() * bonusPool.length)];
+        bonus._isBonus = true; // flag temporária para destaque visual
+        result.push(bonus);
+      }
+    }
+
     return result;
   }
 
@@ -224,7 +237,10 @@ window.PackOpening = (() => {
       slot.appendChild(wrapper);
       slot.addEventListener('click', () => flipCard(slot, wrapper, sticker, i));
       // Remove fly-in class after animation ends so hover transform is not blocked
-      slot.addEventListener('animationend', () => slot.classList.remove('card-fly'), { once: true });
+      slot.addEventListener('animationend', () => {
+        slot.classList.remove('card-fly');
+        if (sticker._isBonus) slot.classList.add('card-bonus'); // ativa o brilho só após a entrada
+      }, { once: true });
       container.appendChild(slot);
     });
   }
@@ -250,9 +266,14 @@ window.PackOpening = (() => {
   function showResultBadge(slot, sticker) {
     const wasOwned = (priorCollection[sticker.id] || 0) > 0;
     const badge    = document.createElement('div');
-    badge.className = `card-result-badge ${wasOwned ? 'repetida' : 'nova'}`;
-    badge.textContent = wasOwned ? '🔁 Repetida' : '⭐ Nova!';
-    slot.appendChild(badge); // badge on outer slot (already position:relative)
+    if (sticker._isBonus) {
+      badge.className   = 'card-result-badge bonus';
+      badge.textContent = wasOwned ? '✨ BÔNUS! Repetida' : '✨ BÔNUS! Nova!';
+    } else {
+      badge.className   = `card-result-badge ${wasOwned ? 'repetida' : 'nova'}`;
+      badge.textContent = wasOwned ? '🔁 Repetida' : '⭐ Nova!';
+    }
+    slot.appendChild(badge);
   }
 
   function updateNewBadges() {
