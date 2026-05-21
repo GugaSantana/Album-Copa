@@ -1,0 +1,194 @@
+/* =============================================
+   KEYFRAMES
+   ============================================= */
+
+/* --- Auth trophy float --- */
+@keyframes trophy-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-8px) rotate(-3deg); }
+  66%       { transform: translateY(-4px) rotate(3deg); }
+}
+
+/* --- Pack idle glow pulse --- */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%       { opacity: 0.7; transform: scale(1.08); }
+}
+
+/* --- Pack shine sliding --- */
+@keyframes pack-shine-move {
+  0%   { left: -40%; }
+  40%  { left: 110%; }
+  100% { left: 110%; }
+}
+
+/* --- Pack shake on click --- */
+@keyframes pack-shake {
+  0%   { transform: translateX(0)  rotate(0deg)   scale(1); }
+  10%  { transform: translateX(-10px) rotate(-4deg) scale(1.02); }
+  20%  { transform: translateX(10px)  rotate(4deg)  scale(1.04); }
+  30%  { transform: translateX(-8px)  rotate(-3deg) scale(1.03); }
+  40%  { transform: translateX(8px)   rotate(3deg)  scale(1.05); }
+  50%  { transform: translateX(-6px)  rotate(-2deg) scale(1.04); }
+  60%  { transform: translateX(6px)   rotate(2deg)  scale(1.03); }
+  70%  { transform: translateX(-4px)  rotate(-1deg) scale(1.02); }
+  80%  { transform: translateX(4px)   rotate(1deg)  scale(1.01); }
+  90%  { transform: translateX(-2px)  rotate(-0.5deg) scale(1); }
+  100% { transform: translateX(0)  rotate(0deg)   scale(1); }
+}
+
+/* --- Pack tear/explode --- */
+@keyframes pack-explode {
+  0%   { transform: scale(1);    opacity: 1; filter: brightness(1); }
+  20%  { transform: scale(1.15); opacity: 1; filter: brightness(2); }
+  60%  { transform: scale(0.8) rotate(15deg); opacity: 0.6; filter: brightness(3); }
+  100% { transform: scale(0)   rotate(25deg); opacity: 0; filter: brightness(4); }
+}
+
+/* --- Flash white burst on pack open --- */
+@keyframes flash-burst {
+  0%   { opacity: 0; }
+  10%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* --- Card fly in (staggered via CSS var --delay) --- */
+@keyframes card-fly-in {
+  0% {
+    transform: translateY(220px) scale(0.4) rotate(calc(var(--card-tilt, 0deg) * 2));
+    opacity: 0;
+  }
+  70% {
+    transform: translateY(-12px) scale(1.05) rotate(calc(var(--card-tilt, 0deg) * -0.2));
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(var(--card-tilt, 0deg));
+    opacity: 1;
+  }
+}
+
+/* --- Card entrance applied as class --- */
+.card-fly {
+  animation: card-fly-in 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation-delay: var(--delay, 0s);
+}
+
+/* --- Holographic shimmer on sticker cards --- */
+@keyframes holo-shimmer {
+  0%   { background-position: 200% 200%; }
+  100% { background-position: -200% -200%; }
+}
+
+/* --- Sticker paste into album slot --- */
+@keyframes sticker-paste {
+  0%   { transform: scale(0.3) rotate(-8deg); opacity: 0; }
+  55%  { transform: scale(1.12) rotate(2deg); opacity: 1; }
+  75%  { transform: scale(0.96) rotate(-1deg); }
+  88%  { transform: scale(1.04) rotate(0.5deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* --- Badge pop animation --- */
+@keyframes badge-pop {
+  0%   { transform: translateX(-50%) scale(0); opacity: 0; }
+  70%  { transform: translateX(-50%) scale(1.2); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+/* --- Modal slide up --- */
+@keyframes modal-slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* --- Toast slide in --- */
+@keyframes toast-in {
+  from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+}
+
+/* --- Soft blinking for "click me" instruction --- */
+@keyframes blink-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+
+/* --- Stars twinkle (auth bg) --- */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50%       { opacity: 0.9; transform: scale(1.4); }
+}
+
+/* --- New sticker confetti burst --- */
+@keyframes confetti-fly {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(var(--cx, 0px), var(--cy, -80px)) rotate(var(--cr, 360deg)) scale(0); opacity: 0; }
+}
+
+/* --- Quick deposit button bounce --- */
+@keyframes deposit-bounce {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.93); }
+  70%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* --- Stat card count up (just a glow flash) --- */
+@keyframes stat-flash {
+  0%   { box-shadow: 0 0 0 rgba(255,215,0,0); }
+  40%  { box-shadow: 0 0 24px rgba(255,215,0,0.4); }
+  100% { box-shadow: 0 0 0 rgba(255,215,0,0); }
+}
+
+/* =============================================
+   ANIMATION UTILITY CLASSES
+   ============================================= */
+
+/* Applied by JS during pack shake */
+.pack-shaking .pack-body {
+  animation: pack-shake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+/* Applied by JS during pack explode */
+.pack-exploding .pack-body {
+  animation: pack-explode 0.4s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* Flash overlay (inserted by JS) */
+.flash-overlay {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 500;
+  pointer-events: none;
+  animation: flash-burst 0.45s ease-out forwards;
+}
+
+/* Confetti particle */
+.confetti-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  pointer-events: none;
+  animation: confetti-fly 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Deposit click animation */
+.deposit-btn.clicked {
+  animation: deposit-bounce 0.3s ease;
+}
+
+/* Stat flash on update */
+.stat-card.updated {
+  animation: stat-flash 0.6s ease;
+}
+
+/* Star in auth bg */
+.star {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  animation: twinkle var(--duration, 2s) var(--delay, 0s) ease-in-out infinite;
+}
