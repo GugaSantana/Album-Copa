@@ -121,6 +121,7 @@ window.Album = (() => {
         showToast('Nenhuma figurinha nova para colar!');
       } else {
         showToast(`✅ ${count} figurinha(s) colada(s) automaticamente!`);
+        render();
       }
     } catch (err) {
       showToast('Erro: ' + err.message);
