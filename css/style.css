@@ -802,6 +802,12 @@ input, textarea { font-family: inherit; }
   overflow-x: visible;
   gap: 16px;
 }
+@media (max-width: 480px) {
+  .pack-reveal {
+    justify-content: flex-start;
+    padding-bottom: 32px;
+  }
+}
 .pack-reveal.hidden { display: none; }
 
 .reveal-header { text-align: center; }
