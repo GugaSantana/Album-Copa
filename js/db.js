@@ -158,7 +158,12 @@ window.DB = (() => {
     resetUserAccount,
     fillUserAlbum,
     buyCocaBottle,
-    openCocaBottle
+    openCocaBottle,
+    proposeTrade,
+    acceptTrade,
+    declineTrade,
+    getUserTrades,
+    markTradeSeen
   };
 
   // ── ADMIN ────────────────────────────────────────────────────
@@ -226,4 +231,121 @@ window.DB = (() => {
     });
     return priorCollection;
   }
+
+  // ── TRADES ───────────────────────────────────────────────────
+
+  /** Get pending trades sent/received by this user, plus unseen resolved proposals */
+  async function getUserTrades(uid) {
+    const [sentSnap, recSnap] = await Promise.all([
+      window.db.collection('trades').where('fromUid', '==', uid).get(),
+      window.db.collection('trades').where('toUid',   '==', uid).get()
+    ]);
+    const allSent = sentSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const allRec  = recSnap.docs.map(d  => ({ id: d.id, ...d.data() }));
+    return {
+      sent:     allSent.filter(t => t.status === 'pending'),
+      received: allRec.filter(t  => t.status === 'pending'),
+      resolved: allSent.filter(t =>
+        (t.status === 'accepted' || t.status === 'declined') && !t.seenByFrom
+      )
+    };
+  }
+
+  /**
+   * Propose a trade: fromStickerIds[] I give, toStickerIds[] I want.
+   * For each offered sticker the proposer must have qty > count offered (keeps 1).
+   */
+  async function proposeTrade(fromUid, fromUsername, fromStickerIds, toUid, toUsername, toStickerIds) {
+    if (!fromStickerIds.length || !toStickerIds.length)
+      throw new Error('Selecione pelo menos uma figurinha de cada lado.');
+
+    const fromSnap = await window.db.collection('users').doc(fromUid).get();
+    const fromCol  = (fromSnap.data().collection || {});
+
+    // Count how many of each sticker is being offered
+    const offerCount = {};
+    fromStickerIds.forEach(id => { offerCount[id] = (offerCount[id] || 0) + 1; });
+
+    // Validate: must have at least offerCount + 1 of each (keep 1 copy)
+    for (const [id, count] of Object.entries(offerCount)) {
+      if ((fromCol[id] || 0) < count + 1) {
+        const s = window.getStickerById(id);
+        throw new Error(`Você não tem ${count} cópia(s) repetida(s) de ${s ? s.name : id}!`);
+      }
+    }
+
+    await window.db.collection('trades').add({
+      fromUid, fromUsername, fromStickers: fromStickerIds,
+      toUid,   toUsername,   toStickers:   toStickerIds,
+      status:  'pending',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+
+  /** Accept a trade — atomically swaps all stickers on both sides */
+  async function acceptTrade(tradeId) {
+    const tradeRef  = window.db.collection('trades').doc(tradeId);
+    const tradeSnap = await tradeRef.get();
+    if (!tradeSnap.exists) throw new Error('Troca não encontrada');
+    const trade = tradeSnap.data();
+
+    // Support both new (arrays) and old (single string) format
+    const fromStickers = trade.fromStickers || (trade.fromSticker ? [trade.fromSticker] : []);
+    const toStickers   = trade.toStickers   || (trade.toSticker   ? [trade.toSticker]   : []);
+
+    await window.db.runTransaction(async tx => {
+      const fromRef = window.db.collection('users').doc(trade.fromUid);
+      const toRef   = window.db.collection('users').doc(trade.toUid);
+      const [fromSnap, toSnap] = await Promise.all([tx.get(fromRef), tx.get(toRef)]);
+      const fromCol = (fromSnap.data().collection || {});
+      const toCol   = (toSnap.data().collection   || {});
+
+      // Validate from side: count occurrences and check availability
+      const fromOfferCount = {};
+      fromStickers.forEach(id => { fromOfferCount[id] = (fromOfferCount[id] || 0) + 1; });
+      for (const [id, count] of Object.entries(fromOfferCount)) {
+        if ((fromCol[id] || 0) < count) {
+          const s = window.getStickerById(id);
+          throw new Error(`Figurinha ${s ? s.name : id} do proponente não está mais disponível`);
+        }
+      }
+
+      // Validate to side
+      const toOfferCount = {};
+      toStickers.forEach(id => { toOfferCount[id] = (toOfferCount[id] || 0) + 1; });
+      for (const [id, count] of Object.entries(toOfferCount)) {
+        if ((toCol[id] || 0) < count) {
+          const s = window.getStickerById(id);
+          throw new Error(`Sua figurinha ${s ? s.name : id} não está mais disponível`);
+        }
+      }
+
+      // Calculate net delta per sticker for each user, then apply in one update
+      const _netUpdate = (gives, receives) => {
+        const delta = {};
+        gives.forEach(id    => { delta[id] = (delta[id] || 0) - 1; });
+        receives.forEach(id => { delta[id] = (delta[id] || 0) + 1; });
+        const obj = { tradesCompleted: firebase.firestore.FieldValue.increment(1) };
+        Object.entries(delta).forEach(([id, d]) => {
+          obj[`collection.${id}`] = firebase.firestore.FieldValue.increment(d);
+        });
+        return obj;
+      };
+
+      tx.update(fromRef, _netUpdate(fromStickers, toStickers));
+      tx.update(toRef,   _netUpdate(toStickers,   fromStickers));
+      tx.update(tradeRef, { status: 'accepted' });
+    });
+  }
+
+  /** Decline or cancel a trade proposal */
+  async function declineTrade(tradeId) {
+    await window.db.collection('trades').doc(tradeId).update({ status: 'declined' });
+  }
+
+  /** Mark a resolved trade as seen by the proposer (dismisses the notification) */
+  async function markTradeSeen(tradeId) {
+    await window.db.collection('trades').doc(tradeId).update({ seenByFrom: true });
+  }
+
 })();

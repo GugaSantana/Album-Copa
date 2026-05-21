@@ -53,9 +53,15 @@ function refreshHomeStats() {
 
   document.getElementById('home-username').textContent  = profile.username || 'jogador';
   document.getElementById('stat-balance').textContent   = fmt(profile.balance);
-  document.getElementById('stat-packs').textContent     = profile.packsOpened  || 0;
+  document.getElementById('stat-packs').textContent     = profile.packsOpened    || 0;
   document.getElementById('stat-spent').textContent     = fmt(profile.totalSpent);
-  document.getElementById('home-pending').textContent   = profile.pendingPacks || 0;
+  document.getElementById('stat-trades').textContent    = profile.tradesCompleted || 0;
+  document.getElementById('home-pending').textContent   = profile.pendingPacks    || 0;
+
+  // Total stickers in collection
+  const col        = profile.collection || {};
+  const totalInCol = Object.values(col).reduce((s, v) => s + v, 0);
+  document.getElementById('stat-collection-total').textContent = totalInCol;
 
   // Album progress
   const alb       = profile.album      || {};
@@ -133,9 +139,11 @@ function init() {
   PackOpening.init();
   Collection.init();
   Album.init();
+  Trades.init();
 
   // Register home hook
-  registerViewHook('home', refreshHomeStats);
+  registerViewHook('home',       refreshHomeStats);
+  registerViewHook('collection', () => { Collection.render(); Trades.refreshBadge(); });
 
   // ── ADMIN SECRET TRIGGER ─────────────────────────────────────
   // Clique 7× rápido no título do home para abrir o painel admin

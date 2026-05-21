@@ -150,8 +150,6 @@ window.Collection = (() => {
 
     // Modal paste
     document.getElementById('modal-paste-btn').addEventListener('click', handleModalPaste);
-
-    registerViewHook('collection', render);
   }
 
   return { init, render, openModal };

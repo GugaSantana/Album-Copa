@@ -6,8 +6,8 @@
   <title>Álbum Copa 2026</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=1.1">
-  <link rel="stylesheet" href="css/animations.css?v=1.1">
+  <link rel="stylesheet" href="css/style.css?v=1.2">
+  <link rel="stylesheet" href="css/animations.css?v=1.2">
 </head>
 <body>
 
@@ -115,20 +115,30 @@
           <div class="stat-value">R$<span id="stat-balance">0,00</span></div>
           <div class="stat-label">Saldo</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">📦</div>
-          <div class="stat-value"><span id="stat-packs">0</span></div>
-          <div class="stat-label">Pacotes Abertos</div>
-        </div>
         <div class="stat-card stat-spent-card">
           <div class="stat-icon">💸</div>
           <div class="stat-value">R$<span id="stat-spent">0,00</span></div>
           <div class="stat-label">Total Gasto</div>
         </div>
         <div class="stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-value"><span id="stat-packs">0</span></div>
+          <div class="stat-label">Pacotes Abertos</div>
+        </div>
+        <div class="stat-card">
           <div class="stat-icon">📖</div>
           <div class="stat-value"><span id="stat-album-count">0</span>/<span id="stat-album-total">16</span></div>
           <div class="stat-label">Figurinhas Coladas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✨</div>
+          <div class="stat-value"><span id="stat-collection-total">0</span></div>
+          <div class="stat-label">Total na Coleção</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔄</div>
+          <div class="stat-value"><span id="stat-trades">0</span></div>
+          <div class="stat-label">Trocas Realizadas</div>
         </div>
       </div>
 
@@ -346,7 +356,13 @@
   <section id="collection-view" class="view app-view">
     <header class="view-header">
       <h2 class="view-title">✨ Coleção</h2>
-      <div class="collection-badge" id="collection-count-badge">0 fig.</div>
+      <div class="collection-header-actions">
+        <button class="trades-open-btn" id="trades-open-btn" title="Trocas de Figurinhas">
+          🔄 Trocas
+          <span class="trades-header-badge hidden" id="trades-header-badge">0</span>
+        </button>
+        <div class="collection-badge" id="collection-count-badge">0 fig.</div>
+      </div>
     </header>
 
     <div class="collection-filters" id="collection-filters">
@@ -404,6 +420,36 @@
 </div>
 
 <!-- ==============================
+     TRADES OVERLAY
+     ============================== -->
+<div id="trades-overlay" class="trades-overlay hidden">
+  <div class="trades-panel">
+    <div class="trades-panel-header">
+      <h2 class="trades-panel-title">🔄 Trocas de Figurinhas</h2>
+      <button class="trades-close-btn" id="trades-close">✕</button>
+    </div>
+
+    <div class="trades-tabs-bar">
+      <button class="trades-tab active" data-tab="pending">
+        📬 Pendentes
+        <span class="trades-badge hidden" id="trades-pending-badge">0</span>
+      </button>
+      <button class="trades-tab" data-tab="search">🔍 Procurar</button>
+    </div>
+
+    <div id="trades-tab-pending" class="trades-tab-content">
+      <div id="trades-received-section"></div>
+      <div id="trades-sent-section"></div>
+    </div>
+
+    <div id="trades-tab-search" class="trades-tab-content hidden">
+      <div id="trades-user-list"></div>
+      <div id="trades-propose-form" class="hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
      ADMIN OVERLAY
      ============================== -->
 <div id="admin-overlay" class="admin-overlay hidden">
@@ -428,18 +474,18 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <!-- App scripts (order matters) -->
-<script src="js/firebase-config.js?v=1.1"></script>
-<script src="js/data.js?v=1.1"></script>
-<script src="js/db.js?v=1.1"></script>
-<script src="js/auth.js?v=1.1"></script>
-<script src="js/router.js?v=1.1"></script>
-<script src="js/shop.js?v=1.1"></script>
-<script src="js/pack-opening.js?v=1.1"></script>
-<script src="js/collection.js?v=1.1"></script>
-<script src="js/album.js?v=1.1"></script>
-<script src="js/admin.js?v=1.1"></script>
-<script src="js/trades.js?v=1.1"></script>
-<script src="js/app.js?v=1.1"></script>
+<script src="js/firebase-config.js?v=1.2"></script>
+<script src="js/data.js?v=1.2"></script>
+<script src="js/db.js?v=1.2"></script>
+<script src="js/auth.js?v=1.2"></script>
+<script src="js/router.js?v=1.2"></script>
+<script src="js/shop.js?v=1.2"></script>
+<script src="js/pack-opening.js?v=1.2"></script>
+<script src="js/collection.js?v=1.2"></script>
+<script src="js/album.js?v=1.2"></script>
+<script src="js/admin.js?v=1.2"></script>
+<script src="js/trades.js?v=1.2"></script>
+<script src="js/app.js?v=1.2"></script>
 
 </body>
 </html>
