@@ -121,8 +121,11 @@ window.Trades = (() => {
       <div class="trade-card-actions">
         ${isSent
           ? `<button class="btn btn-sm btn-danger" data-action="cancel"  data-trade-id="${trade.id}">🗑 Cancelar</button>`
-          : `<button class="btn btn-sm btn-primary" data-action="accept"  data-trade-id="${trade.id}">✅ Aceitar</button>
-             <button class="btn btn-sm btn-danger"  data-action="decline" data-trade-id="${trade.id}">❌ Recusar</button>`
+          : `<textarea class="trade-message-input trade-reply-input" data-trade-id="${trade.id}" placeholder="Resposta opcional…" maxlength="200" rows="2"></textarea>
+             <div class="trade-reply-btns">
+               <button class="btn btn-sm btn-primary" data-action="accept"  data-trade-id="${trade.id}">✅ Aceitar</button>
+               <button class="btn btn-sm btn-danger"  data-action="decline" data-trade-id="${trade.id}">❌ Recusar</button>
+             </div>`
         }
       </div>
     `;
@@ -153,6 +156,7 @@ window.Trades = (() => {
         }
       </div>
       ${trade.message ? `<div class="trade-message-bubble sent">"💬 ${trade.message}"</div>` : ''}
+      ${trade.replyMessage ? `<div class="trade-message-bubble received">"↩️ ${trade.replyMessage}"</div>` : ''}
       <div class="trade-multi-pair">
         <div class="trade-multi-side">
           <div class="trade-side-label">Você deu (${giveIds.length})</div>
@@ -460,12 +464,17 @@ window.Trades = (() => {
       const { action, tradeId } = btn.dataset;
       btn.disabled = true;
       try {
+        // Read optional reply message from the same card
+        const card        = btn.closest('.trade-card');
+        const replyInput  = card && card.querySelector('.trade-reply-input[data-trade-id="' + tradeId + '"]');
+        const replyMsg    = replyInput ? replyInput.value.trim() : '';
+
         if (action === 'accept') {
-          await DB.acceptTrade(tradeId);
+          await DB.acceptTrade(tradeId, replyMsg);
           showToast('🎉 Troca realizada! Figurinhas trocadas com sucesso!');
           Collection.render();
         } else if (action === 'decline') {
-          await DB.declineTrade(tradeId);
+          await DB.declineTrade(tradeId, replyMsg);
           showToast('❌ Proposta recusada.');
         } else if (action === 'cancel') {
           await DB.declineTrade(tradeId);

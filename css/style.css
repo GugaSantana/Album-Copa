@@ -2064,6 +2064,8 @@ input, textarea { font-family: inherit; }
   border-color: rgba(255, 215, 0, 0.4);
 }
 .trade-message-input::placeholder { color: var(--text-3); }
+.trade-reply-input { margin-bottom: 8px; }
+.trade-reply-btns  { display: flex; gap: 8px; }
 
 /* Message bubble on trade cards */
 .trade-message-bubble {

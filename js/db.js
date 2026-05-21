@@ -284,7 +284,7 @@ window.DB = (() => {
   }
 
   /** Accept a trade — atomically swaps all stickers on both sides */
-  async function acceptTrade(tradeId) {
+  async function acceptTrade(tradeId, replyMessage) {
     const tradeRef  = window.db.collection('trades').doc(tradeId);
     const tradeSnap = await tradeRef.get();
     if (!tradeSnap.exists) throw new Error('Troca não encontrada');
@@ -335,13 +335,17 @@ window.DB = (() => {
 
       tx.update(fromRef, _netUpdate(fromStickers, toStickers));
       tx.update(toRef,   _netUpdate(toStickers,   fromStickers));
-      tx.update(tradeRef, { status: 'accepted' });
+      const resolvedData = { status: 'accepted' };
+      if (replyMessage) resolvedData.replyMessage = replyMessage;
+      tx.update(tradeRef, resolvedData);
     });
   }
 
   /** Decline or cancel a trade proposal */
-  async function declineTrade(tradeId) {
-    await window.db.collection('trades').doc(tradeId).update({ status: 'declined' });
+  async function declineTrade(tradeId, replyMessage) {
+    const data = { status: 'declined' };
+    if (replyMessage) data.replyMessage = replyMessage;
+    await window.db.collection('trades').doc(tradeId).update(data);
   }
 
   /** Mark a resolved trade as seen by the proposer (dismisses the notification) */
