@@ -107,7 +107,7 @@ input, textarea { font-family: inherit; }
   flex: 1;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 16px 16px 8px;
+  padding: 16px 16px 24px;
 }
 
 .view-scroll::-webkit-scrollbar { width: 3px; }
@@ -670,6 +670,13 @@ input, textarea { font-family: inherit; }
   gap: 16px;
   overflow: hidden;
 }
+@media (max-width: 480px) {
+  .pack-stage {
+    overflow-y: auto;
+    justify-content: flex-start;
+    padding-top: 16px;
+  }
+}
 
 .pack-available-info {
   font-size: 14px;
@@ -1095,6 +1102,18 @@ input, textarea { font-family: inherit; }
   gap: 8px;
   padding: 10px 16px;
   flex-shrink: 0;
+}
+@media (max-width: 480px) {
+  .collection-filters,
+  .album-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .collection-filters::-webkit-scrollbar,
+  .album-filters::-webkit-scrollbar { display: none; }
 }
 
 /* ── COCA-COLA BOTTLE SECTION ───────────────────────────────── */
