@@ -25,14 +25,19 @@ window.Collection = (() => {
     )];
 
     // If active filter no longer has stickers, reset to 'all'
-    if (activeFilter !== 'all' && !ownedTeams.includes(activeFilter)) {
+    const specialFilters = ['all', 'repeated', 'unpasted'];
+    if (!specialFilters.includes(activeFilter) && !ownedTeams.includes(activeFilter)) {
       activeFilter = 'all';
     }
 
     buildFilters(ownedTeams);
 
     let stickers = window.STICKERS.filter(s => ownedIds.includes(s.id));
-    if (activeFilter !== 'all') {
+    if (activeFilter === 'repeated') {
+      stickers = stickers.filter(s => (col[s.id] || 0) >= 2);
+    } else if (activeFilter === 'unpasted') {
+      stickers = stickers.filter(s => !alb[s.id]);
+    } else if (activeFilter !== 'all') {
       stickers = stickers.filter(s => s.team === activeFilter);
     }
 
@@ -90,6 +95,8 @@ window.Collection = (() => {
     };
 
     container.appendChild(makeBtn('Todas', 'all'));
+    container.appendChild(makeBtn('🔁 Repetidas', 'repeated'));
+    container.appendChild(makeBtn('📌 Não coladas', 'unpasted'));
     ownedTeams.forEach(team => container.appendChild(makeBtn(team, team)));
   }
 
