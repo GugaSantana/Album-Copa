@@ -204,6 +204,14 @@ window.PackOpening = (() => {
     const container = document.getElementById('cards-container');
     container.innerHTML = '';
 
+    // Mobile: tap zooms card briefly then returns to normal
+    container.addEventListener('touchstart', e => {
+      const slot = e.target.closest('.card-slot');
+      if (!slot) return;
+      slot.classList.add('card-zoomed');
+      setTimeout(() => slot.classList.remove('card-zoomed'), 700);
+    }, { passive: true });
+
     currentPack.forEach((sticker, i) => {
       const tilt  = ((i - 3) * 1.5); // slight fan: -4.5 … +4.5 deg
       const delay = (0.08 + i * 0.09).toFixed(2);
