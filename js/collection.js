@@ -127,6 +127,11 @@ window.Collection = (() => {
     const uid = window.AppState.uid;
     try {
       await DB.pasteSticker(uid, currentModalStickerId);
+      // Atualiza o perfil local imediatamente para render() ver a mudança
+      if (window.AppState.profile) {
+        window.AppState.profile.album = window.AppState.profile.album || {};
+        window.AppState.profile.album[currentModalStickerId] = true;
+      }
       showToast('📌 Figurinha colada no álbum!');
       closeModal();
       render();
