@@ -106,6 +106,7 @@ window.Trades = (() => {
     card.className = 'trade-card';
     card.innerHTML = `
       <div class="trade-card-partner">${isSent ? '→ Para' : '← De'}: <strong>${partnerName}</strong></div>
+      ${trade.message ? `<div class="trade-message-bubble ${isSent ? 'sent' : 'received'}">"💬 ${trade.message}"</div>` : ''}
       <div class="trade-multi-pair">
         <div class="trade-multi-side">
           <div class="trade-side-label">Você dá (${giveIds.length})</div>
@@ -151,6 +152,7 @@ window.Trades = (() => {
           : '❌ <strong>Recusada</strong> — ' + trade.toUsername + ' recusou sua proposta'
         }
       </div>
+      ${trade.message ? `<div class="trade-message-bubble sent">"💬 ${trade.message}"</div>` : ''}
       <div class="trade-multi-pair">
         <div class="trade-multi-side">
           <div class="trade-side-label">Você deu (${giveIds.length})</div>
@@ -292,6 +294,13 @@ window.Trades = (() => {
             </div>
           </div>
         </div>
+        <textarea
+          id="trade-message"
+          class="trade-message-input"
+          placeholder="Mensagem para ${toUsername} (opcional)..."
+          maxlength="200"
+          rows="2"
+        ></textarea>
         <button class="btn btn-primary btn-full" id="confirm-trade-btn" disabled>
           ✉️ Propor Troca
         </button>
@@ -357,13 +366,15 @@ window.Trades = (() => {
   async function _handlePropose() {
     const uid      = window.AppState.uid;
     const username = (window.AppState.profile || {}).username || uid;
+    const message  = (document.getElementById('trade-message')?.value || '').trim();
     const btn      = document.getElementById('confirm-trade-btn');
     if (btn) btn.disabled = true;
 
     try {
       await DB.proposeTrade(
         uid, username, selectedMyStickers,
-        selectedUser.uid, selectedUser.username, selectedTheirStickers
+        selectedUser.uid, selectedUser.username, selectedTheirStickers,
+        message
       );
       showToast('✅ Proposta de troca enviada!');
       const formEl = document.getElementById('trades-propose-form');

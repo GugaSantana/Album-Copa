@@ -1981,6 +1981,40 @@ input, textarea { font-family: inherit; }
   margin-bottom: 14px;
 }
 
+/* Message input on propose form */
+.trade-message-input {
+  width: 100%;
+  background: var(--bg-card-2);
+  border: 1px solid var(--border-2);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 10px 12px;
+  resize: none;
+  margin-bottom: 12px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.trade-message-input:focus {
+  outline: none;
+  border-color: rgba(255, 215, 0, 0.4);
+}
+.trade-message-input::placeholder { color: var(--text-3); }
+
+/* Message bubble on trade cards */
+.trade-message-bubble {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-2);
+  background: var(--bg-card-2);
+  border-left: 3px solid var(--border-2);
+  border-radius: 0 8px 8px 0;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.trade-message-bubble.received { border-left-color: var(--gold); }
+
 .trades-picker {
   display: flex;
   gap: 8px;

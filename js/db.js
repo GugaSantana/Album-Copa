@@ -255,18 +255,16 @@ window.DB = (() => {
    * Propose a trade: fromStickerIds[] I give, toStickerIds[] I want.
    * For each offered sticker the proposer must have qty > count offered (keeps 1).
    */
-  async function proposeTrade(fromUid, fromUsername, fromStickerIds, toUid, toUsername, toStickerIds) {
+  async function proposeTrade(fromUid, fromUsername, fromStickerIds, toUid, toUsername, toStickerIds, message) {
     if (!fromStickerIds.length || !toStickerIds.length)
       throw new Error('Selecione pelo menos uma figurinha de cada lado.');
 
     const fromSnap = await window.db.collection('users').doc(fromUid).get();
     const fromCol  = (fromSnap.data().collection || {});
 
-    // Count how many of each sticker is being offered
     const offerCount = {};
     fromStickerIds.forEach(id => { offerCount[id] = (offerCount[id] || 0) + 1; });
 
-    // Validate: must have at least offerCount + 1 of each (keep 1 copy)
     for (const [id, count] of Object.entries(offerCount)) {
       if ((fromCol[id] || 0) < count + 1) {
         const s = window.getStickerById(id);
@@ -274,12 +272,15 @@ window.DB = (() => {
       }
     }
 
-    await window.db.collection('trades').add({
+    const tradeData = {
       fromUid, fromUsername, fromStickers: fromStickerIds,
       toUid,   toUsername,   toStickers:   toStickerIds,
       status:  'pending',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    };
+    if (message) tradeData.message = message;
+
+    await window.db.collection('trades').add(tradeData);
   }
 
   /** Accept a trade — atomically swaps all stickers on both sides */
