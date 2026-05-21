@@ -239,7 +239,8 @@ window.PackOpening = (() => {
       // Remove fly-in class after animation ends so hover transform is not blocked
       slot.addEventListener('animationend', () => {
         slot.classList.remove('card-fly');
-        if (sticker._isBonus) slot.classList.add('card-bonus'); // ativa o brilho só após a entrada
+        if (sticker._isBonus)             slot.classList.add('card-bonus');  // brilho dourado
+        if (sticker.team === 'Secretas')  slot.classList.add('card-secret'); // aura azul
       }, { once: true });
       container.appendChild(slot);
     });
