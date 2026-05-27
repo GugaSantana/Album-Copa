@@ -1,4 +1,4 @@
-const CACHE_NAME = 'album-copa-v5';
+const CACHE_NAME = 'album-copa-v6';
 
 const STATIC_ASSETS = [
   '/',
