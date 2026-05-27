@@ -1,4 +1,4 @@
-const CACHE_NAME = 'album-copa-v7';
+const CACHE_NAME = 'album-copa-v8';
 
 // Instala e assume controle imediatamente (sem pré-cache que causava falha no subdiretório)
 self.addEventListener('install', event => {
