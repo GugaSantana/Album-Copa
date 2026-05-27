@@ -527,26 +527,42 @@
     function pwaDoUpdate() {
       if (_newSW) {
         _newSW.postMessage({ type: 'SKIP_WAITING' });
-        _newSW.addEventListener('statechange', e => {
-          if (e.target.state === 'activated') window.location.reload();
-        });
+        // O reload acontece via listener 'controllerchange' abaixo
       }
     }
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
+
+        function showUpdateToast(sw) {
+          _newSW = sw;
+          document.getElementById('pwa-update-toast').style.display = 'flex';
+        }
+
         navigator.serviceWorker.register('./sw.js').then(reg => {
+
+          // Caso 1: SW já estava esperando antes do listener ser registrado (race condition)
+          if (reg.waiting && navigator.serviceWorker.controller) {
+            showUpdateToast(reg.waiting);
+          }
+
+          // Caso 2: Nova atualização encontrada durante a sessão
           reg.addEventListener('updatefound', () => {
             const installing = reg.installing;
             installing.addEventListener('statechange', () => {
               if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-                _newSW = installing;
-                const toast = document.getElementById('pwa-update-toast');
-                toast.style.display = 'flex';
+                showUpdateToast(installing);
               }
             });
           });
+
         }).catch(err => console.warn('SW não registrado:', err));
+
+        // Recarrega automaticamente quando o novo SW assume o controle
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+        });
+
       });
     }
   </script>
