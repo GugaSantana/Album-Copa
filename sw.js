@@ -1,31 +1,8 @@
-const CACHE_NAME = 'album-copa-v6';
+const CACHE_NAME = 'album-copa-v7';
 
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/css/style.css',
-  '/css/animations.css',
-  '/js/app.js',
-  '/js/album.js',
-  '/js/auth.js',
-  '/js/collection.js',
-  '/js/data.js',
-  '/js/db.js',
-  '/js/firebase-config.js',
-  '/js/pack-opening.js',
-  '/js/router.js',
-  '/js/shop.js',
-  '/js/trades.js',
-  '/js/admin.js',
-  '/manifest.json'
-];
-
-// Instala o SW, faz cache e já assume o controle imediatamente
+// Instala e assume controle imediatamente (sem pré-cache que causava falha no subdiretório)
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
-  );
-  self.skipWaiting(); // assume controle sem esperar
+  self.skipWaiting();
 });
 
 // Ativa, limpa caches antigos e notifica clientes
