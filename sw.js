@@ -20,19 +20,12 @@ const STATIC_ASSETS = [
   '/manifest.json'
 ];
 
-// Instala o SW e faz cache dos assets estáticos
+// Instala o SW, faz cache e já assume o controle imediatamente
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
   );
-  // Não chama skipWaiting — o app decide quando atualizar via toast
-});
-
-// Escuta mensagem do app para ativar imediatamente
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+  self.skipWaiting(); // assume controle sem esperar
 });
 
 // Ativa, limpa caches antigos e notifica clientes
