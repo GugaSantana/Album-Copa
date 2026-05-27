@@ -1,4 +1,4 @@
-const CACHE_NAME = 'album-copa-v1';
+const CACHE_NAME = 'album-copa-v2';
 
 const STATIC_ASSETS = [
   '/',
@@ -25,10 +25,17 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
   );
-  self.skipWaiting();
+  // Não chama skipWaiting — o app decide quando atualizar via toast
 });
 
-// Ativa e limpa caches antigos
+// Escuta mensagem do app para ativar imediatamente
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+// Ativa, limpa caches antigos e notifica clientes
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>

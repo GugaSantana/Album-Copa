@@ -505,12 +505,48 @@
 <script src="js/trades.js?v=1.7"></script>
 <script src="js/app.js?v=1.7"></script>
 
+  <!-- Toast de atualização disponível -->
+  <div id="pwa-update-toast" style="
+    display:none; position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:#1e1e2e; color:#fff; border:1px solid #f5c518;
+    border-radius:12px; padding:14px 20px; z-index:99999;
+    box-shadow:0 4px 20px rgba(0,0,0,0.5); font-family:Nunito,sans-serif;
+    align-items:center; gap:14px; white-space:nowrap;
+  ">
+    <span>Nova versão disponível! 🏆</span>
+    <button onclick="pwaDoUpdate()" style="
+      background:#f5c518; color:#0a0a1a; border:none; border-radius:8px;
+      padding:6px 14px; font-weight:700; cursor:pointer; font-size:14px;
+    ">Atualizar agora</button>
+  </div>
+
   <!-- Registro do Service Worker (PWA) -->
   <script>
+    let _newSW = null;
+
+    function pwaDoUpdate() {
+      if (_newSW) {
+        _newSW.postMessage({ type: 'SKIP_WAITING' });
+        _newSW.addEventListener('statechange', e => {
+          if (e.target.state === 'activated') window.location.reload();
+        });
+      }
+    }
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .catch(err => console.warn('SW não registrado:', err));
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+          reg.addEventListener('updatefound', () => {
+            const installing = reg.installing;
+            installing.addEventListener('statechange', () => {
+              if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+                _newSW = installing;
+                const toast = document.getElementById('pwa-update-toast');
+                toast.style.display = 'flex';
+              }
+            });
+          });
+        }).catch(err => console.warn('SW não registrado:', err));
       });
     }
   </script>
